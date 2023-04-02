@@ -1,0 +1,50 @@
+- hosts: all
+  become: true
+  tasks:
+  - name: Installing Mysql and dependencies
+    apt:
+      name: "{{ mysql_packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      mysql_packages:
+      - mysql-server
+      - php-mysql 
+      - php-curl
+      - python3-mysqldb
+       	     
+  - name: start and enable mysql service
+    service:
+      name: mysql
+      state: started
+      enabled: yes
+
+  - name: creating mysql user
+    mysql_user:
+      name: wordpress 
+      password:  wordpress 
+      priv: '*.*:ALL'
+      state: present
+    become: true
+
+  - name: Enable remote login to mysql
+    lineinfile:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      regexp: '^bind-address'
+      line: 'bind-address = 192.168.101.5'
+      backup: yes
+    notify:
+      - Restart mysql
+
+  - name: Copy Netplan config file 
+    template:
+      src: "templates/B/netplan.j2"
+      dest: "/etc/netplan/50-vagrant.yaml"
+  handlers:
+    - name: Apply network configuration
+      command: "netplan apply"
+    - name: Restart mysql
+      service:
+        name: mysql
+        state: restarted    
+

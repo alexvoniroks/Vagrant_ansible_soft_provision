@@ -1,0 +1,41 @@
+- hosts: all
+  become: true
+  tasks:
+  - name: Install Apache2
+    apt:
+      name: apache2
+      state: present
+      update_cache: yes
+  - name: Install PHP
+    apt:
+      name: php
+      state: present
+      update_cache: yes
+  - name: Enable mod_rewrite
+    command: a2enmod rewrite
+  - name: Configure Apache2
+    copy:
+      src: ./files/apache2.config
+      dest: /etc/apache2/apache2.conf
+  - name: Copy Apache2 ports configuration
+    copy:
+      src: ./files/apache.ports
+      dest: /etc/apache2/ports.conf
+  - name: Copy Apache2 site configuration
+    copy:
+      src: ./files/apache.site
+      dest: /etc/apache2/sites-available/000-default.conf
+    notify: restart apache2
+  - name: Copy netplan config file
+    template:
+      src: "templates/C/netplan.j2"
+      dest: "/etc/netplan/50-vagrant.yaml"
+    notify: Apply network configuration
+
+  handlers:
+    - name: Apply network configuration
+      command: "netplan apply"
+    - name: restart apache2
+      service:
+        name: apache2
+        state: restarted
