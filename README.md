@@ -11,15 +11,15 @@ Before using this project, ensure that you have the following software installed
 ## Usage
 1. Clone this repository to your local machine:
 
-git clone <repository-url>:
+`git clone <repository-url>`:
 
 2. Navigate to the project directory:
 
-cd <project-directory>:
+`cd <project-directory>`:
 
 3. Start the virtual machines defined in the Vagrantfile:
 
-vagrant up:
+`vagrant up`:
   
 This will create and provision the VMs based on the Vagrantfile configuration.
 
